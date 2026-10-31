@@ -191,10 +191,10 @@ export const projectDetails: Record<string, ProjectDetail> = {
         heading: 'What it does not show',
         body: 'The causal tests are where the claim stops. Removing a fitted direction costs far more downstream accuracy than removing a random one (0.3 to 1.1 R² against about zero over 4,200 random ablations), and swapping a direction between patches moves a downstream readout 15 to 50 percent of the way to the donor value against 1 to 2 percent for random directions. But the pre-registered pair-specificity test passes in only 57 of 180 cells, and the interchange reaches its target threshold in 10 of 285. The directions look like a shared, entangled basis rather than fifteen separate ratio computations.',
         bullets: [
-          'Not shown: that Prithvi computes any specific named index, or that it implements a division',
+          'The evidence stops short of showing that Prithvi computes any specific named index, or that it implements a division anywhere',
           'Likely account: a compact set of brightness-normalised spectral factors from which all 15 ratios are linearly recoverable',
           'Layer-normalisation can supply partial brightness invariance for free, which is why untrained baselines carry so much of the argument',
-          'Sparse autoencoders added nothing on the causal tests and found different features across seeds',
+          'A dedicated branch reproduced every causal result without sparse autoencoders, confirming they are not required for this analysis; across seeds the dictionaries also recovered different features',
           'Open: downstream task heads under illumination shift, and other model families (SatMAE, SpectralGPT, CROMA)'
         ],
         images: [
