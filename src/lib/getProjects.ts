@@ -1,6 +1,7 @@
 import 'server-only';
 import { supabasePublic } from './supabase';
 import {
+  autoLayout,
   defaultProjects,
   PATTERN_OPTIONS,
   Project,
@@ -41,7 +42,7 @@ function normalize(row: Record<string, unknown>): Project {
  */
 export async function getProjects(): Promise<Project[]> {
   const client = supabasePublic();
-  if (!client) return defaultProjects;
+  if (!client) return autoLayout(defaultProjects);
 
   const { data, error } = await client
     .from('projects')
@@ -49,7 +50,7 @@ export async function getProjects(): Promise<Project[]> {
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true });
 
-  if (error || !data || data.length === 0) return defaultProjects;
+  if (error || !data || data.length === 0) return autoLayout(defaultProjects);
 
   const rows = data.map(normalize);
   // Add code-defined projects the table doesn't have yet, right after the
@@ -57,5 +58,5 @@ export async function getProjects(): Promise<Project[]> {
   const have = new Set(rows.map((p) => p.title));
   const extras = defaultProjects.filter((p) => p.alwaysShow && !have.has(p.title));
   rows.splice(1, 0, ...extras);
-  return rows;
+  return autoLayout(rows);
 }

@@ -11,7 +11,7 @@ export type ProjectTheme =
 
 export type ProjectPattern = 'grid' | 'dots' | 'lines' | 'noise' | 'circuit';
 
-export type ProjectSize = 'featured' | 'wide' | 'medium';
+export type ProjectSize = 'featured' | 'wide' | 'medium' | 'full';
 
 export type Project = {
   id?: string;
@@ -64,8 +64,28 @@ export const themes: Record<ProjectTheme, { gradient: string; accent: string }> 
 export const sizes: Record<ProjectSize, string> = {
   featured: 'md:col-span-4 md:row-span-2',
   wide: 'md:col-span-3',
-  medium: 'md:col-span-2'
+  medium: 'md:col-span-2',
+  full: 'md:col-span-6'
 };
+
+/**
+ * Assign card sizes by position so every row of the 6-column grid is filled,
+ * whatever the number of projects: one featured card (4 cols, 2 rows) with two
+ * medium cards beside it, then rows of two wide cards (a lone last card spans
+ * the full row). Per-project sizes from the database are not used, since they
+ * leave gaps whenever a project is added or removed.
+ */
+export function autoLayout(list: Project[]): Project[] {
+  if (list.length < 3) return list;
+  const rest = list.length - 3;
+  return list.map((p, i) => {
+    let size: ProjectSize;
+    if (i === 0) size = 'featured';
+    else if (i < 3) size = 'medium';
+    else size = rest % 2 === 1 && i === list.length - 1 ? 'full' : 'wide';
+    return { ...p, size };
+  });
+}
 
 export const THEME_OPTIONS = Object.keys(themes) as ProjectTheme[];
 export const PATTERN_OPTIONS: ProjectPattern[] = [
