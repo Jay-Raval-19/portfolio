@@ -64,7 +64,11 @@ export const projectDetails: Record<string, ProjectDetail> = {
       { label: 'Band-pair ratios tested', value: '15' },
       { label: 'Prithvi variants', value: '6' },
       { label: 'Layer-pair evaluations', value: '1,590' },
-      { label: 'Model-pair cells present', value: '89 / 90' }
+      { label: 'Model-pair cells present', value: '89 / 90' },
+      { label: 'HLS tiles processed', value: '11,274' },
+      { label: 'Global sites', value: '100' },
+      { label: 'Cluster GPU jobs', value: '120+' },
+      { label: 'Thresholds tuned post hoc', value: '0' }
     ],
     sections: [
       {
@@ -90,6 +94,13 @@ export const projectDetails: Record<string, ProjectDetail> = {
           'Magnitude: a noise floor, so near-dead features cannot look ratio-like by chance'
         ],
         images: [
+          {
+            src: '/images/projects/spectral-index-eo/invariance.jpg',
+            alt: 'A real Iowa cropland scene at three brightness levels, with NDVI and NIR minus Red below each',
+            caption:
+              'The premise, on a real HLS scene. Scaling every band leaves NDVI identical to four decimal places (0.8398 in all three columns) while a plain band difference moves with the light, from 0.286 to 0.573. That exact cancellation is the signature the battery hunts for inside the model.',
+            plate: true
+          },
           {
             src: '/images/projects/spectral-index-eo/fig1_fingerprints.png',
             alt: 'Elasticity fingerprints of exact ratios, a band difference and brightness',
@@ -125,6 +136,54 @@ export const projectDetails: Record<string, ProjectDetail> = {
             caption:
               'Ratio residual of each named index\'s linear readout by layer in 300M-TL (lower is more ratio-like). Grey: untrained copies; orange: planted control; line: pre-registered cutoff.',
             plate: true
+          },
+          {
+            src: '/images/projects/spectral-index-eo/claimable_layers.png',
+            alt: 'Grid of which band pairs clear the full claim gate at each layer, for 300M-TL and 600M-TL',
+            caption:
+              'Every pair against every layer, filled where all five claim criteria hold at once. Blue-Red, which has no standard name, is the only pair filled end to end in both models, and four unnamed pairs outrank NBR, NBR2 and NDMI. Asterisks mark the seven pairs humans named.',
+            plate: true
+          }
+        ]
+      },
+      {
+        heading: 'What a single neuron looks like',
+        body: 'Readouts are fitted, so a sceptic can always argue the ratio behaviour came from the fitting rather than the model. Individual neurons remove that objection, because nothing is fitted to them at all.\n\nScoring every neuron at nine depths of 300M-TL finds 28 that pass the strict battery, against zero in each of three untrained copies, and 12 of the 28 sit at layer 0. Rescored on more than twice the data, the strongest survive and sharpen: one unit lands on the SWIR1 to SWIR2 ratio at residual 0.046, where the same unit index in an untrained copy scores 0.537 and classifies as a plain band detector. The same pair reappears as a single neuron in the smallest model at residual 0.038, which is the one result here that replicates across architectures.',
+        bullets: [
+          'Strict counts hold at 25 to 28 against zero across every perturbation size from 0.01 to 0.2',
+          'Visible-band pairs are nearly exclusive to the trained model: Green-Red 62 against at most 1, Blue-Green 26 against 0',
+          'There is no NDVI neuron anywhere, in any model, at any layer',
+          'Honest limits: the surviving residuals sit just under the 0.05 threshold, one candidate flipped from pass to fail when measured on more tokens, and the unit shown below correlates 0.57 with its own index but -0.53 with brightness, which the battery and the correlation disagree about'
+        ],
+        images: [
+          {
+            src: '/images/projects/spectral-index-eo/unit875_top.jpg',
+            alt: 'The 24 image patches that most activate unit 875 at layer 0 of Prithvi 300M-TL',
+            caption:
+              'The 24 patches that most excite one layer-0 unit the battery classifies as a Green-Red ratio. It fires on boundaries between vegetation and bare ground, tracks and field edges, which is what a visible-band contrast detector should do.',
+            plate: true
+          }
+        ]
+      },
+      {
+        heading: 'Holding up outside the pilot',
+        body: 'A result measured on five held-out sites could be a quirk of those five. So the readouts were refit and rescored on a worldwide split: 20 held-out sites spanning five continents, two years, and both growing and off seasons. Accuracy did not drop. Among cells that pass every claim criterion, the median held-out R² is 0.917, 0.916 and 0.931 for 300M-TL across the three test sets, and 0.925, 0.928 and 0.919 for 600M-TL, with the lowest value anywhere at 0.59.\n\nThe measurement itself was swept too. Every perturbation size from 0.01 to 0.2, a twentyfold range, returns the same verdict: 25 to 28 strict ratio-type neurons in the trained model against zero in every untrained copy, with Green-Red holding at 61 to 68 against at most one. Exactly one statement turned out to be step-size dependent, and it is reported as such rather than quietly dropped.',
+        bullets: [
+          'Cross-site, cross-year and cross-season: refit and rescored on 20 held-out sites over two years',
+          'Perturbation size swept across a twentyfold range with no change to the strict result',
+          'Intervals come from a cluster bootstrap that resamples whole sites, not patches, which makes them two to three times wider and far harder to fool'
+        ]
+      },
+      {
+        heading: 'The model on its own task',
+        body: 'Every other experiment probes a frozen encoder. This one runs Prithvi the way it was actually trained: encoder and decoder together, random patches hidden, the missing reflectance predicted, scored only on the hidden patches and converted back into physical units.\n\nAt the 75 percent masking ratio used in pretraining, 300M-TL reconstructs held-out tiles with an NDVI mean absolute error of 0.119 and a red-band R² of 0.43, while 600M-TL reaches 0.095. Drop the mask to 25 percent and the NDVI error falls to 0.058. A randomly initialised copy, given identical tiles and an identical mask, returns an NDVI error of 0.43 and a red-band R² near -21. That gap is the one every interpretability claim here is measured against.',
+        images: [
+          {
+            src: '/images/projects/spectral-index-eo/reconstruction.jpg',
+            alt: 'Three held-out satellite tiles shown as truth, 75 percent masked input, reconstruction, and NDVI error',
+            caption:
+              'Prithvi 300M-TL on its own pretraining task, on sites it never saw during this study. Three quarters of each tile is hidden and the model fills it back in. Field boundaries, burn scars and centre-pivot circles return in roughly the right place; the error map shows where NDVI is recovered well and where edges are smoothed away.',
+            plate: true
           }
         ]
       },
@@ -137,7 +196,40 @@ export const projectDetails: Record<string, ProjectDetail> = {
           'Layer-normalisation can supply partial brightness invariance for free, which is why untrained baselines carry so much of the argument',
           'Sparse autoencoders added nothing on the causal tests and found different features across seeds',
           'Open: downstream task heads under illumination shift, and other model families (SatMAE, SpectralGPT, CROMA)'
+        ],
+        images: [
+          {
+            src: '/images/projects/spectral-index-eo/fig4_causal.png',
+            alt: 'Change in held-out R² after ablating each index direction, read at two later layers',
+            caption:
+              'Change in held-out R², in percentage points, after removing each index direction from the token stream. The strong effects run down the diagonal, but they spill across pairs, which is the entanglement the specificity test catches. The worst of twenty random directions stays near zero.',
+            plate: true
+          }
         ]
+      },
+      {
+        heading: 'Running it',
+        body: 'The study is 11,274 HLS tiles from 100 sites, roughly 6.5 GB, and about 120 GPU jobs on a Slurm cluster. Coordinating that by hand does not scale, so the jobs run through a dependency-aware task pool. Workers claim work atomically by creating a directory, which makes the claim race free without needing a database, wait on upstream datasets to be marked ready, and retry on failure.\n\nOne piece paid for itself immediately. A validator imports every script, captures its argument parser, and checks each queued command against it before a single GPU hour is spent. It caught eight malformed flags in one campaign that would otherwise have failed hours deep into the queue.',
+        bullets: [
+          '11,274 tiles, 100 sites, 20 held out, two years, growing and off seasons, cloud and snow screened by the Fmask quality layer',
+          'Race-free task claiming by directory creation, with declared data dependencies and automatic retries',
+          'Pre-flight validation of every queued command against its own argument parser',
+          'A parallel branch reproduces the entire pipeline without sparse autoencoders, to test directly whether they were needed'
+        ]
+      }
+    ],
+    links: [
+      {
+        label: 'Code and experiment log',
+        href: 'https://github.com/Jay-Raval-19/MDM-ResearchGroup-11'
+      },
+      {
+        label: 'Prithvi-EO-2.0 (NASA / IBM)',
+        href: 'https://arxiv.org/abs/2412.02732'
+      },
+      {
+        label: 'HLS surface reflectance (Claverie et al.)',
+        href: 'https://doi.org/10.1016/j.rse.2018.09.002'
       }
     ]
   },
