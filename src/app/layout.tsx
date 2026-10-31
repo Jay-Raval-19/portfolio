@@ -31,7 +31,7 @@ const jetbrains = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Jay Raval - CS Engineer & AI Researcher',
   description:
-    'Jay Raval. CS Engineer at Ahmedabad University. LLM reasoning, formal methods, complex systems.',
+    'Jay Raval. MS CS student at Rutgers University. LLM reasoning, formal methods, complex systems.',
   openGraph: {
     title: 'Jay Raval',
     description: 'CS Engineer · AI Researcher · Builder',

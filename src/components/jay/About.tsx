@@ -90,7 +90,7 @@ export default function About() {
                 </div>
                 <p className="text-[0.95rem] leading-relaxed text-[var(--fg)]">
                   Finished my thesis on LLM reasoning over regular languages.
-                  Headed to Rutgers this fall for my MS in Computer Science.
+                  Now doing my MS in Computer Science at Rutgers.
                   Looking for research roles for 2026.
                 </p>
               </div>
@@ -121,9 +121,9 @@ export default function About() {
               <p>
                 I&apos;m a CS graduate from{' '}
                 <span className="text-[var(--fg)]">Ahmedabad University</span>,
-                headed to{' '}
-                <span className="text-[var(--fg)]">Rutgers University</span>{' '}
-                this fall for my MS in Computer Science. Most of what I do
+                now pursuing my MS in Computer Science at{' '}
+                <span className="text-[var(--fg)]">Rutgers University</span>.
+                Most of what I do
                 lives at the intersection of{' '}
                 <span className="text-[var(--fg)]">formal reasoning</span>,{' '}
                 <span className="text-[var(--fg)]">large language models</span>,
@@ -154,7 +154,7 @@ export default function About() {
                   title: 'Rutgers University',
                   sub: 'MS Computer Science · New Brunswick',
                   meta: 'Sep 2026 - May 2028',
-                  aside: 'incoming · fall 2026'
+                  aside: 'current · since fall 2026'
                 },
                 {
                   label: 'education',

@@ -31,7 +31,7 @@ function neofetchInfo(projectCount: number): Array<[string, string]> {
     ['user', 'jay@portfolio'],
     ['loc', 'new brunswick, NJ'],
     ['edu', 'BTech CSE ’26 · Ahmedabad University'],
-    ['next', 'MSCS @ Rutgers · fall 2026'],
+    ['now', 'MSCS @ Rutgers · since fall 2026'],
     ['focus', 'LLM reasoning · formal methods'],
     [
       'shipped',
@@ -165,7 +165,7 @@ export default function Terminal({
             },
             {
               kind: 'out',
-              text: 'next stop: Rutgers-New Brunswick for an MS in Computer Science.'
+              text: 'now: pursuing an MS in Computer Science at Rutgers-New Brunswick.'
             },
             { kind: 'out', text: ' ' },
             {
