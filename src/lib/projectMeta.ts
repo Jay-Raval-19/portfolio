@@ -11,7 +11,7 @@ export type ProjectTheme =
 
 export type ProjectPattern = 'grid' | 'dots' | 'lines' | 'noise' | 'circuit';
 
-export type ProjectSize = 'featured' | 'wide' | 'medium' | 'full';
+export type ProjectSize = 'featured' | 'large' | 'wide' | 'medium' | 'full';
 
 export type Project = {
   id?: string;
@@ -63,28 +63,65 @@ export const themes: Record<ProjectTheme, { gradient: string; accent: string }> 
 
 export const sizes: Record<ProjectSize, string> = {
   featured: 'md:col-span-4 md:row-span-2',
+  large: 'md:col-span-4',
   wide: 'md:col-span-3',
   medium: 'md:col-span-2',
   full: 'md:col-span-6'
 };
 
+// Staggered rows that each add up to the grid's 6 columns.
+const ROWS: Record<string, ProjectSize[]> = {
+  A: ['wide', 'wide'],
+  B: ['medium', 'medium', 'medium'],
+  C: ['large', 'medium'],
+  D: ['medium', 'large'],
+  E: ['full']
+};
+
+// Row types for `n` cards, cycling A, B, C, D so widths alternate. If the cycle
+// would leave a single card over, the last row is re-split so nothing is orphaned.
+function rowTypes(n: number): string[] {
+  const order = ['A', 'B', 'C', 'D'];
+  const out: string[] = [];
+  let k = 0;
+  while (n > 0) {
+    let t = order[k % order.length];
+    let need = ROWS[t].length;
+    if (n < need) {
+      if (n === 2) {
+        t = 'A';
+        need = 2;
+      } else if (out.length === 0) {
+        out.push('E');
+        break;
+      } else {
+        // n === 1: give the last row's cards back and re-split them
+        const last = out.pop() as string;
+        const back = n + ROWS[last].length;
+        if (back === 3) out.push('B');
+        else out.push('C', 'D');
+        break;
+      }
+    }
+    out.push(t);
+    n -= need;
+    k++;
+  }
+  return out;
+}
+
 /**
- * Assign card sizes by position so every row of the 6-column grid is filled,
- * whatever the number of projects: one featured card (4 cols, 2 rows) with two
- * medium cards beside it, then rows of two wide cards (a lone last card spans
- * the full row). Per-project sizes from the database are not used, since they
- * leave gaps whenever a project is added or removed.
+ * Assign card sizes by position so every row of the 6-column grid is filled
+ * whatever the number of projects: a featured card (4 cols, 2 rows) with two
+ * medium cards beside it, then staggered rows (3+3, 2+2+2, 4+2, 2+4). Sizes
+ * stored in the database are not used, since they leave gaps whenever a
+ * project is added or removed.
  */
 export function autoLayout(list: Project[]): Project[] {
   if (list.length < 3) return list;
-  const rest = list.length - 3;
-  return list.map((p, i) => {
-    let size: ProjectSize;
-    if (i === 0) size = 'featured';
-    else if (i < 3) size = 'medium';
-    else size = rest % 2 === 1 && i === list.length - 1 ? 'full' : 'wide';
-    return { ...p, size };
-  });
+  const sizesByIndex: ProjectSize[] = ['featured', 'medium', 'medium'];
+  for (const t of rowTypes(list.length - 3)) sizesByIndex.push(...ROWS[t]);
+  return list.map((p, i) => ({ ...p, size: sizesByIndex[i] }));
 }
 
 export const THEME_OPTIONS = Object.keys(themes) as ProjectTheme[];
