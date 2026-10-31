@@ -1,0 +1,213 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------- Theme variables ---------------- */
+:root,
+:root[data-theme='dark'] {
+  --bg: #0a0a0a;
+  --bg-subtle: #121212;
+  --bg-elevated: #1a1a1a;
+  --fg: #f5f5f2;
+  --fg-muted: rgba(245, 245, 242, 0.55);
+  --fg-soft: rgba(245, 245, 242, 0.25);
+  --border: rgba(245, 245, 242, 0.08);
+  --accent: #8fbbff;
+  --accent-warm: #f4a261;
+  --accent-soft: rgba(143, 187, 255, 0.1);
+  color-scheme: dark;
+
+  /* shadcn compat */
+  --background: 0 0% 4%;
+  --foreground: 60 6% 95%;
+  --card: 0 0% 7%;
+  --card-foreground: 60 6% 95%;
+  --popover: 0 0% 7%;
+  --popover-foreground: 60 6% 95%;
+  --primary: 215 100% 78%;
+  --primary-foreground: 0 0% 8%;
+  --secondary: 30 87% 67%;
+  --secondary-foreground: 0 0% 8%;
+  --muted: 0 0% 12%;
+  --muted-foreground: 60 5% 65%;
+  --accent-foreground: 0 0% 8%;
+  --destructive: 0 85% 60%;
+  --destructive-foreground: 60 6% 95%;
+  --input: 0 0% 15%;
+  --ring: 215 100% 78%;
+  --radius: 1rem;
+}
+
+:root[data-theme='light'] {
+  --bg: #f7f5ef;
+  --bg-subtle: #efece2;
+  --bg-elevated: #ffffff;
+  --fg: #0e0e0c;
+  --fg-muted: rgba(14, 14, 12, 0.55);
+  --fg-soft: rgba(14, 14, 12, 0.25);
+  --border: rgba(14, 14, 12, 0.1);
+  --accent: #1f4bbd;
+  --accent-warm: #b45309;
+  --accent-soft: rgba(31, 75, 189, 0.08);
+  color-scheme: light;
+
+  --background: 50 25% 95%;
+  --foreground: 0 0% 5%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 5%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 5%;
+  --primary: 222 71% 43%;
+  --primary-foreground: 50 25% 95%;
+  --secondary: 28 87% 37%;
+  --secondary-foreground: 50 25% 95%;
+  --muted: 50 20% 90%;
+  --muted-foreground: 0 0% 40%;
+  --accent-foreground: 0 0% 5%;
+  --destructive: 0 85% 50%;
+  --destructive-foreground: 50 25% 95%;
+  --input: 50 15% 85%;
+  --ring: 222 71% 43%;
+  --radius: 1rem;
+}
+
+/* Smooth theme transitions */
+html,
+body,
+* {
+  transition: background-color 0.35s ease, border-color 0.35s ease,
+    color 0.35s ease;
+}
+.no-theme-transition,
+.no-theme-transition * {
+  transition: none !important;
+}
+
+/* ---------------- Base ---------------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-feature-settings: 'ss01', 'cv11';
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background-color: var(--accent);
+    color: var(--bg);
+  }
+}
+
+/* ---------------- Utility families ---------------- */
+.font-display {
+  font-family: var(--font-display), 'Instrument Serif', Georgia, serif;
+}
+.font-body {
+  font-family: var(--font-inter), Inter, ui-sans-serif, system-ui, sans-serif;
+}
+.font-mono {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, SFMono-Regular,
+    monospace;
+}
+
+/* Custom cursor hides native */
+html,
+body {
+  cursor: none;
+}
+* {
+  cursor: none !important;
+}
+
+/* Admin route: restore the native cursor (no custom cursor rendered there) */
+html.native-cursor,
+html.native-cursor body,
+html.native-cursor *,
+html.native-cursor *::before,
+html.native-cursor *::after {
+  cursor: auto !important;
+}
+html.native-cursor a,
+html.native-cursor button,
+html.native-cursor select,
+html.native-cursor [role='button'] {
+  cursor: pointer !important;
+}
+html.native-cursor input,
+html.native-cursor textarea {
+  cursor: text !important;
+}
+
+/* Gallery / darkroom route: restore native cursor and override bg */
+html.darkroom,
+html.darkroom body {
+  cursor: auto !important;
+  background: #0a0908 !important;
+}
+html.darkroom *,
+html.darkroom *::before,
+html.darkroom *::after {
+  cursor: inherit !important;
+}
+html.darkroom a,
+html.darkroom button {
+  cursor: pointer !important;
+}
+html.darkroom body::before {
+  opacity: 0.08 !important;
+}
+
+/* ---------------- Grain texture (subtle noise) ---------------- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* ---------------- Existing animations kept ---------------- */
+@keyframes scroll-down {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(16px);
+    opacity: 0.3;
+  }
+}
+
+.animate-scroll-down {
+  animation: scroll-down 1.5s ease-in-out infinite;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: var(--fg-soft);
+  border-radius: 3px;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+}
