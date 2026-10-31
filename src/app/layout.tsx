@@ -1,4 +1,4 @@
-﻿import { Inter, Instrument_Serif, JetBrains_Mono } from 'next/font/google';
+import { Inter, Instrument_Serif, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import React, { ReactNode } from 'react';
 import { Metadata } from 'next';
@@ -6,6 +6,7 @@ import Animations from './animations';
 import Header from '@/components/layout/header';
 import { ThemeProvider } from '@/components/jay/ThemeProvider';
 import Terminal from '@/components/jay/Terminal';
+import { getProjects } from '@/lib/getProjects';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -49,7 +50,15 @@ const themeInitScript = `
   })();
 `;
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+// Re-fetch Supabase content at most once a minute so admin edits show without a redeploy.
+export const revalidate = 60;
+
+export default async function RootLayout({
+  children
+}: {
+  children: ReactNode;
+}) {
+  const projects = await getProjects();
   return (
     <html
       lang="en"
@@ -64,7 +73,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Animations>
             <Header />
             {children}
-            <Terminal />
+            <Terminal projects={projects} />
           </Animations>
         </ThemeProvider>
       </body>

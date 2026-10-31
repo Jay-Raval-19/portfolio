@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTheme } from './ThemeProvider';
-import { defaultProjects } from '@/lib/projectMeta';
+import { defaultProjects, Project, projectSlug } from '@/lib/projectMeta';
 import { ASCII_JAY } from './asciiJay';
 import { isMobile } from '@/components/util';
 
@@ -18,27 +18,33 @@ const SEEN_KEY = 'jr-term-seen';
 
 type Line = { kind: 'in' | 'out' | 'accent' | 'art'; text: string };
 
-const NEOFETCH_INFO: Array<[string, string]> = [
-  ['user', 'jay@portfolio'],
-  ['loc', 'new brunswick, NJ'],
-  ['edu', 'BTech CSE ’26 · Ahmedabad University'],
-  ['next', 'MSCS @ Rutgers · fall 2026'],
-  ['focus', 'LLM reasoning · formal methods'],
-  ['shipped', '4 papers · 8 projects · 1 internship'],
-  ['fuel', 'chai, mostly'],
-  ['status', 'open to research & collabs']
-];
-
-const BANNER: Line[] = [
-  { kind: 'accent', text: 'jay.sh - portfolio shell' },
-  { kind: 'out', text: "type 'help' to see commands · 'exit' or Esc to close" }
-];
-
 const PAPERS = [
   'Testing the Limits of LLMs on Regular Languages - EMNLP 2026 (under review)',
   'Beyond Memorization: LLM Reasoning on Unseen ToC Tasks - ACL Findings 2026 (accepted)',
   'Predicting Phase Transition in Cellular Automata - Chaos, Solitons & Fractals (under review)',
   'Understanding the Game of Collaboration through H-Index - (under revision)'
+];
+
+function neofetchInfo(projectCount: number): Array<[string, string]> {
+  const noun = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+  return [
+    ['user', 'jay@portfolio'],
+    ['loc', 'new brunswick, NJ'],
+    ['edu', 'BTech CSE ’26 · Ahmedabad University'],
+    ['next', 'MSCS @ Rutgers · fall 2026'],
+    ['focus', 'LLM reasoning · formal methods'],
+    [
+      'shipped',
+      `${noun(PAPERS.length, 'paper')} · ${noun(projectCount, 'project')} · 1 internship`
+    ],
+    ['fuel', 'chai, mostly'],
+    ['status', 'open to research & collabs']
+  ];
+}
+
+const BANNER: Line[] = [
+  { kind: 'accent', text: 'jay.sh - portfolio shell' },
+  { kind: 'out', text: "type 'help' to see commands · 'exit' or Esc to close" }
 ];
 
 const HELP: string[] = [
@@ -64,7 +70,12 @@ function isTypingTarget(el: EventTarget | null): boolean {
   );
 }
 
-export default function Terminal() {
+export default function Terminal({
+  projects = defaultProjects
+}: {
+  projects?: Project[];
+}) {
+  const info = neofetchInfo(projects.length);
   const [open, setOpen] = useState(false);
   const [lines, setLines] = useState<Line[]>(BANNER);
   const [value, setValue] = useState('');
@@ -186,11 +197,11 @@ export default function Terminal() {
         case 'projects':
         case 'ls':
           print(
-            defaultProjects.map(
+            projects.map(
               (p) =>
                 ({
                   kind: 'out',
-                  text: `${(p.slug ?? '').padEnd(26)} ${p.title}`
+                  text: `${projectSlug(p).padEnd(26)} ${p.title}`
                 }) as Line
             )
           );
@@ -199,7 +210,7 @@ export default function Terminal() {
           ]);
           break;
         case 'open': {
-          const match = defaultProjects.find((p) => p.slug === arg);
+          const match = projects.find((p) => projectSlug(p) === arg);
           if (match?.externalUrl) {
             print([{ kind: 'accent', text: `→ ${match.externalUrl}` }]);
             setOpen(false);
@@ -288,7 +299,7 @@ export default function Terminal() {
           ]);
       }
     },
-    [print, router, theme, toggle]
+    [print, projects, router, theme, toggle]
   );
 
   // Keep a ref to the latest run() so the one-shot demo effect can use it
@@ -420,9 +431,9 @@ export default function Terminal() {
                       {ASCII_JAY.join('\n')}
                     </pre>
                     <div className="text-[0.75rem]">
-                      <p className="text-[#8fbbff]">{NEOFETCH_INFO[0][1]}</p>
+                      <p className="text-[#8fbbff]">{info[0][1]}</p>
                       <p className="text-white/40">─────────────</p>
-                      {NEOFETCH_INFO.slice(1).map(([k, v]) => (
+                      {info.slice(1).map(([k, v]) => (
                         <p key={k}>
                           <span className="text-[#8fbbff]">{k}</span>
                           <span className="text-white/60">: {v}</span>

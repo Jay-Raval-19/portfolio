@@ -9,6 +9,9 @@ import ContrastCursor from '@/components/animations/cursor/contrastCursor';
 import { getProjects } from '@/lib/getProjects';
 import Link from 'next/link';
 
+// Re-fetch Supabase content at most once a minute so admin edits show without a redeploy.
+export const revalidate = 60;
+
 export default async function Home() {
   const projects = await getProjects();
   return (
