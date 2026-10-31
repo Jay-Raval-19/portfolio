@@ -153,14 +153,15 @@ export const projectDetails: Record<string, ProjectDetail> = {
           'Strict counts hold at 25 to 28 against zero across every perturbation size from 0.01 to 0.2',
           'Visible-band pairs are nearly exclusive to the trained model: Green-Red 62 against at most 1, Blue-Green 26 against 0',
           'There is no NDVI neuron anywhere, in any model, at any layer',
-          'Honest limits: the surviving residuals sit just under the 0.05 threshold, one candidate flipped from pass to fail when measured on more tokens, and the unit shown below correlates 0.57 with its own index but -0.53 with brightness, which the battery and the correlation disagree about'
+          'Honest limits: the surviving residuals sit just under the 0.05 threshold, and one candidate flipped from pass to fail when measured on more tokens',
+          'The unit below correlates -0.53 with overall brightness, which a scale-invariant ratio should not do at all. Together with a residual of 0.049 against a 0.05 cutoff, it is better described as a near-ratio greenness detector than as a clean Green-Red computation'
         ],
         images: [
           {
             src: '/images/projects/spectral-index-eo/unit875_top.jpg',
             alt: 'The 24 image patches that most activate unit 875 at layer 0 of Prithvi 300M-TL',
             caption:
-              'The 24 patches that most excite one layer-0 unit the battery classifies as a Green-Red ratio. It fires on boundaries between vegetation and bare ground, tracks and field edges, which is what a visible-band contrast detector should do.',
+              'The 24 patches that most excite one layer-0 unit the battery classifies as a Green-Red ratio. The outlined square is the patch actually scored. It looks like an edge detector, but the statistics say otherwise: activation tracks the patch mean of Green-Red at 0.57 and its within-patch spread at only 0.11, so it reads the level of visible greenness rather than the boundary. The crowded boundaries are a selection effect, since the most extreme activations come from green sitting next to something bright.',
             plate: true
           }
         ]
