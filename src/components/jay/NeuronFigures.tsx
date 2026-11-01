@@ -197,6 +197,123 @@ const UNITS: Unit[] = [
   }
 ];
 
+/* ------------------------------------------------------------------ */
+/* All 15 band pairs, readout level                                    */
+/* ------------------------------------------------------------------ */
+
+// layers: how many depths pass every claim criterion at once, out of those tested.
+// neurons: single units across all layers whose own behaviour is ratio-like, trained
+// against the best of three untrained copies. A pair that untrained networks also
+// produce is not evidence of anything learned, which is why both columns are shown.
+type Pair = {
+  name: string;
+  named: boolean;
+  l300: number;
+  l600: number;
+  neurons: number;
+  neuronsRandom: number;
+};
+
+const N300 = 24;
+const N600 = 17;
+
+const PAIRS: Pair[] = [
+  { name: 'Blue-Red', named: false, l300: 24, l600: 17, neurons: 4, neuronsRandom: 0 },
+  { name: 'NDWI', named: true, l300: 24, l600: 17, neurons: 0, neuronsRandom: 0 },
+  { name: 'NDVI', named: true, l300: 22, l600: 17, neurons: 0, neuronsRandom: 0 },
+  { name: 'Green-Red', named: true, l300: 22, l600: 8, neurons: 66, neuronsRandom: 1 },
+  { name: 'MNDWI', named: true, l300: 11, l600: 11, neurons: 7, neuronsRandom: 4 },
+  { name: 'Red-SWIR2', named: false, l300: 9, l600: 9, neurons: 3, neuronsRandom: 4 },
+  { name: 'Blue-SWIR2', named: false, l300: 8, l600: 4, neurons: 0, neuronsRandom: 0 },
+  { name: 'Red-SWIR1', named: false, l300: 8, l600: 4, neurons: 9, neuronsRandom: 5 },
+  { name: 'Green-SWIR2', named: false, l300: 7, l600: 6, neurons: 0, neuronsRandom: 0 },
+  { name: 'Blue-Green', named: false, l300: 5, l600: 3, neurons: 29, neuronsRandom: 0 },
+  { name: 'NBR2', named: true, l300: 5, l600: 5, neurons: 260, neuronsRandom: 142 },
+  { name: 'Blue-SWIR1', named: false, l300: 4, l600: 3, neurons: 0, neuronsRandom: 0 },
+  { name: 'Blue-NIR', named: false, l300: 2, l600: 2, neurons: 0, neuronsRandom: 0 },
+  { name: 'NBR', named: true, l300: 2, l600: 3, neurons: 0, neuronsRandom: 29 },
+  { name: 'NDMI', named: true, l300: 1, l600: 3, neurons: 31, neuronsRandom: 138 }
+];
+
+function Bar({ value, total, accent, faint }: {
+  value: number; total: number; accent: string; faint?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--border)]">
+        <div className="h-full rounded-full"
+          style={{ width: `${(value / total) * 100}%`, background: accent, opacity: faint ? 0.45 : 1 }} />
+      </div>
+      <span className="w-8 shrink-0 text-right font-mono text-[0.62rem] tabular-nums text-[var(--fg-muted)]">
+        {value}/{total}
+      </span>
+    </div>
+  );
+}
+
+function PairMatrix({ accent }: { accent: string }) {
+  return (
+    <div className="p-4">
+      <p className="mb-4 text-sm leading-relaxed text-[var(--fg-muted)]">
+        Single neurons turn up for only a few pairs, so every pair was tested the other way
+        too: let a fitted readout build the ratio from many units, then check that for the same
+        invariance. Bars are the depths that survive every criterion at once. The pair holding
+        at every depth of both models is Blue-Red, which has no standard name, while NBR and
+        NDMI, which do, hold at almost none.
+      </p>
+
+      <div className="mb-2 flex items-center gap-4">
+        <span className={`${MONO} text-[var(--fg-muted)]`}>
+          <span className="mr-1.5 inline-block h-1.5 w-4 rounded-full align-middle"
+            style={{ background: accent }} />300M-TL
+        </span>
+        <span className={`${MONO} text-[var(--fg-muted)]`}>
+          <span className="mr-1.5 inline-block h-1.5 w-4 rounded-full align-middle"
+            style={{ background: accent, opacity: 0.45 }} />600M-TL
+        </span>
+        <span className={`${MONO} ml-auto text-[var(--fg-muted)]`}>
+          * has a standard name
+        </span>
+      </div>
+
+      <div className="divide-y divide-[var(--border)]">
+        {PAIRS.map((p) => {
+          // Only meaningful when the trained model clearly beats networks that never learned.
+          const exclusive = p.neurons > 0 && p.neurons > 4 * Math.max(p.neuronsRandom, 1);
+          return (
+            <div key={p.name}
+              className="grid grid-cols-[5.5rem_1fr_4.5rem] items-center gap-3 py-1.5 sm:grid-cols-[6.5rem_1fr_1fr_4.5rem]">
+              <span className="font-mono text-[0.72rem] text-[var(--fg)]">
+                {p.name}
+                {p.named && <span className="text-[var(--fg-muted)]">&nbsp;*</span>}
+              </span>
+              {/* sm:contents dissolves this wrapper so the two bars sit side by side in the
+                  grid on wider screens, and stack on a phone where they would be 8px wide */}
+              <div className="space-y-1 sm:contents">
+                <Bar value={p.l300} total={N300} accent={accent} />
+                <Bar value={p.l600} total={N600} accent={accent} faint />
+              </div>
+              <span className="text-right font-mono text-[0.62rem] tabular-nums"
+                style={{ color: exclusive ? accent : 'var(--fg-muted)' }}>
+                {p.neurons === 0 && p.neuronsRandom === 0
+                  ? 'no units'
+                  : `${p.neurons} v ${p.neuronsRandom}`}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="mt-4 text-[0.72rem] leading-relaxed text-[var(--fg-muted)]">
+        Right-hand column: single units behaving like that ratio on their own, trained against
+        the best of three untrained copies. NBR2 and NDMI lead on raw count and mean nothing,
+        since untrained networks produce them just as readily. Green-Red at 66 against 1 and
+        Blue-Green at 29 against 0 are what training adds.
+      </p>
+    </div>
+  );
+}
+
 const W = 300;
 const H = 158;
 const PAD = { l: 30, r: 8, t: 12, b: 24 };
@@ -257,12 +374,39 @@ function Stat({ label, value, note, tone }: {
 }
 
 export function NeuronExplorer({ accent }: { accent: string }) {
+  const [tab, setTab] = useState<'units' | 'pairs'>('units');
   const [id, setId] = useState(UNITS[0].id);
   const unit = UNITS.find((u) => u.id === id) ?? UNITS[0];
   const variants = Array.from(new Set(UNITS.map((u) => u.variant)));
 
   return (
     <div className="my-8 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-subtle)]">
+      {/* Two views of the same question: one neuron at a time, or every pair at once */}
+      <div className="flex border-b border-[var(--border)]">
+        {([
+          ['units', 'single neurons'],
+          ['pairs', 'all 15 band pairs']
+        ] as const).map(([key, title]) => (
+          <button key={key} onClick={() => setTab(key)}
+            aria-pressed={tab === key}
+            className={`${MONO} border-b-2 px-4 py-3 transition-colors ${
+              tab === key
+                ? 'text-[var(--fg)]'
+                : 'border-transparent text-[var(--fg-muted)] hover:text-[var(--fg)]'
+            }`}
+            style={tab === key ? { borderBottomColor: accent } : undefined}>
+            {title}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'pairs' ? (
+        <motion.div key="pairs" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22 }}>
+          <PairMatrix accent={accent} />
+        </motion.div>
+      ) : (
+      <>
       {/* Unit picker, grouped by model */}
       <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-b border-[var(--border)] px-4 py-3">
         {variants.map((v) => (
@@ -332,6 +476,8 @@ export function NeuronExplorer({ accent }: { accent: string }) {
             {unit.verdict}
           </p>
       </motion.div>
+      </>
+      )}
     </div>
   );
 }
