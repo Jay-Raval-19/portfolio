@@ -210,7 +210,7 @@ export const projectDetails: Record<string, ProjectDetail> = {
       },
       {
         heading: 'Running it',
-        body: 'The study is 11,274 HLS tiles from 100 sites, roughly 6.5 GB, and about 120 GPU jobs on a Slurm cluster. Coordinating that by hand does not scale, so the jobs run through a dependency-aware task pool. Workers claim work atomically by creating a directory, which makes the claim race free without needing a database, wait on upstream datasets to be marked ready, and retry on failure.\n\nOne piece paid for itself immediately. A validator imports every script, captures its argument parser, and checks each queued command against it before a single GPU hour is spent. It caught eight malformed flags in one campaign that would otherwise have failed hours deep into the queue.',
+        body: 'The study is 11,274 HLS tiles from 100 sites, roughly 6.5 GB, and about 120 GPU jobs on a Slurm cluster.',
         bullets: [
           '11,274 tiles, 100 sites, 20 held out, two years, growing and off seasons, cloud and snow screened by the Fmask quality layer',
           'Race-free task claiming by directory creation, with declared data dependencies and automatic retries',
