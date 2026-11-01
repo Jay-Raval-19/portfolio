@@ -148,23 +148,16 @@ export const projectDetails: Record<string, ProjectDetail> = {
       },
       {
         heading: 'What a single neuron looks like',
-        body: 'Readouts are fitted, so a sceptic can always argue the ratio behaviour came from the fitting rather than the model. Individual neurons remove that objection, because nothing is fitted to them at all.\n\nScoring every neuron at nine depths of 300M-TL finds 28 that pass the strict battery, against zero in each of three untrained copies, and 12 of the 28 sit at layer 0. Rescored on more than twice the data, the strongest survive and sharpen: one unit lands on the SWIR1 to SWIR2 ratio at residual 0.046, where the same unit index in an untrained copy scores 0.537 and classifies as a plain band detector. The same pair reappears as a single neuron in the smallest model at residual 0.038, which is the one result here that replicates across architectures.',
+        body: 'Readouts are fitted, so a sceptic can always argue the ratio behaviour came from the fitting rather than the model. Individual neurons remove that objection, because nothing is fitted to them at all.\n\nScoring every neuron at nine depths of 300M-TL finds 28 that pass the strict battery, against zero in each of three untrained copies, and 12 of the 28 sit at layer 0. Rescored on more than twice the data, the strongest survive and sharpen: one unit lands on the SWIR1 to SWIR2 ratio at residual 0.046, where the same unit index in an untrained copy scores 0.537 and classifies as a plain band detector. The same pair reappears as a single neuron in the smallest model at residual 0.038, which is the one result here that replicates across architectures.\n\nSeven of those units were then characterised on all 260,978 valid patches: the ground that excites them, the index that best explains them, and the shape of that response. The last of those matters more than it sounds, because a rank correlation only sees a steady rise or fall, and a unit can answer in other shapes. Pick one below.',
         bullets: [
           'Strict counts hold at 25 to 28 against zero across every perturbation size from 0.01 to 0.2',
           'Visible-band pairs are nearly exclusive to the trained model: Green-Red 62 against at most 1, Blue-Green 26 against 0',
           'There is no NDVI neuron anywhere, in any model, at any layer',
           'Honest limits: the surviving residuals sit just under the 0.05 threshold, and one candidate flipped from pass to fail when measured on more tokens',
-          'The unit below correlates -0.53 with overall brightness, which a scale-invariant ratio should not do at all. Together with a residual of 0.049 against a 0.05 cutoff, it is better described as a near-ratio greenness detector than as a clean Green-Red computation'
+          'Brightness is the honest caveat. A scale-invariant ratio should correlate 0.00 with overall brightness, and most of these units do not, which is why they are labelled near-ratio rather than clean',
+          'The two directions come apart in both senses. The unit best explained by NDVI anywhere, at 76 percent of its variance, fails the ratio test; the unit with the lowest ratio residual is explained by no index measured here'
         ],
-        images: [
-          {
-            src: '/images/projects/spectral-index-eo/unit875_top.jpg',
-            alt: 'The 24 image patches that most activate unit 875 at layer 0 of Prithvi 300M-TL',
-            caption:
-              'The 24 patches that most excite one layer-0 unit the battery classifies as a Green-Red ratio. The outlined square is the patch actually scored. It looks like an edge detector, but the statistics say otherwise: activation tracks the patch mean of Green-Red at 0.57 and its within-patch spread at only 0.11, so it reads the level of visible greenness rather than the boundary. The crowded boundaries are a selection effect, since the most extreme activations come from green sitting next to something bright.',
-            plate: true
-          }
-        ]
+        figure: 'neuron-explorer'
       },
       {
         heading: 'Holding up outside the pilot',

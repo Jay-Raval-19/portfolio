@@ -11,6 +11,7 @@ import {
   CdnPathStriping,
   CdnComparisonChart
 } from '@/components/jay/CdnFigures';
+import { NeuronExplorer } from '@/components/jay/NeuronFigures';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -20,7 +21,8 @@ const FIGURES: Record<
 > = {
   'cdn-fallback': ({ accent }) => <CdnFallbackWaterfall accent={accent} />,
   'cdn-striping': () => <CdnPathStriping />,
-  'cdn-comparison': () => <CdnComparisonChart />
+  'cdn-comparison': () => <CdnComparisonChart />,
+  'neuron-explorer': ({ accent }) => <NeuronExplorer accent={accent} />
 };
 
 export default function ProjectDetail({ project }: { project: ProjectDetail }) {
