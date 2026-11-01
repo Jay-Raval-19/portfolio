@@ -23,6 +23,13 @@ type Unit = {
   /** Monotone rank correlation with the same index, and with overall brightness. */
   rho: number;
   brightness: number;
+  /** The exact closed-form index's own brightness correlation, over the same patches. A perfectly
+   *  scale-invariant formula is nowhere near zero here, because brightness and surface type are
+   *  dependent in the real world. */
+  indexBrightness: number;
+  /** Brightness correlation left over once the tracked index is partialled out. This is the number
+   *  that means something: near zero = the unit behaves like a function of the index alone. */
+  partial: number;
   /** Invariance-battery result: how far the unit is from a true scale-invariant ratio. */
   residual: number;
   untrained: number;
@@ -43,6 +50,8 @@ const UNITS: Unit[] = [
     eta2: 0.52,
     rho: -0.74,
     brightness: 0.409,
+    indexBrightness: -0.553,
+    partial: -0.000,
     residual: 0.046,
     untrained: 0.537,
     passes: true,
@@ -66,13 +75,15 @@ const UNITS: Unit[] = [
     eta2: 0.361,
     rho: 0.573,
     brightness: -0.525,
+    indexBrightness: -0.817,
+    partial: -0.121,
     residual: 0.049,
     untrained: 0.363,
     passes: true,
     shape: 'monotone',
     site: 'Mekong delta',
     verdict:
-      'Reads visible greenness, the Green to Red ratio you could measure with an ordinary camera and no infrared. The response rises cleanly with it. The catch is the brightness term: a genuine ratio cannot tell how bright the scene was, and this one dims as the scene brightens, so it is a near ratio rather than a clean one.',
+      'Reads visible greenness, the Green to Red ratio you could measure with an ordinary camera and no infrared. It dims as scenes brighten, which looks damning until you check the formula itself: exact Green to Red correlates -0.82 with brightness, because green things really are darker than deserts. Take that out and only -0.12 is left, so the unit behaves like the index and not like a brightness detector.',
     curve: [
       [-0.366, -0.834], [-0.206, -0.34], [-0.176, -0.08], [-0.158, 0.003], [-0.14, 0.149],
       [-0.122, 0.285], [-0.099, 0.307], [-0.073, 0.429], [-0.045, 0.496], [-0.016, 0.555],
@@ -89,6 +100,8 @@ const UNITS: Unit[] = [
     eta2: 0.403,
     rho: 0.619,
     brightness: 0.398,
+    indexBrightness: 0.679,
+    partial: -0.039,
     residual: 0.06,
     untrained: 0.66,
     passes: false,
@@ -112,6 +125,8 @@ const UNITS: Unit[] = [
     eta2: 0.056,
     rho: -0.167,
     brightness: 0.032,
+    indexBrightness: 0.679,
+    partial: -0.134,
     residual: 0.187,
     untrained: 0.778,
     passes: false,
@@ -135,13 +150,15 @@ const UNITS: Unit[] = [
     eta2: 0.757,
     rho: 0.833,
     brightness: -0.68,
+    indexBrightness: -0.52,
+    partial: -0.523,
     residual: 0.163,
     untrained: 0.393,
     passes: false,
     shape: 'monotone',
     site: 'Borneo',
     verdict:
-      'The sharpest index tracker anywhere in this study. NDVI explains 76 percent of what it does, in an almost straight line, and it still fails the ratio test at 0.163. This is the whole argument in a single neuron: being readable as NDVI is not the same as computing NDVI.',
+      'The sharpest index tracker anywhere in this study. NDVI explains 76 percent of what it does, in an almost straight line, and it still fails the ratio test at 0.163. It is also the one unit with real brightness dependence left over after its index is accounted for, -0.52 where the units that pass sit near zero. Two separate measurements, one from derivatives and one from real scenes, agreeing that this one is not a ratio. The whole argument in a single neuron: being readable as NDVI is not the same as computing NDVI.',
     curve: [
       [-0.431, -0.206], [0.1, -0.932], [0.146, -0.84], [0.161, -0.784], [0.182, -0.774],
       [0.212, -0.677], [0.256, -0.572], [0.322, -0.42], [0.402, -0.248], [0.471, -0.131],
@@ -158,6 +175,8 @@ const UNITS: Unit[] = [
     eta2: 0.088,
     rho: 0.067,
     brightness: -0.083,
+    indexBrightness: 0.679,
+    partial: -0.297,
     residual: 0.038,
     untrained: 0.502,
     passes: true,
@@ -181,6 +200,8 @@ const UNITS: Unit[] = [
     eta2: 0.124,
     rho: -0.321,
     brightness: 0.26,
+    indexBrightness: -0.817,
+    partial: -0.004,
     residual: 0.035,
     untrained: 0.654,
     passes: true,
@@ -465,8 +486,9 @@ export function NeuronExplorer({ accent }: { accent: string }) {
                 note={`untrained twin ${unit.untrained.toFixed(3)} · cutoff 0.05`} />
               <Stat label="explains" value={`${Math.round(unit.eta2 * 100)}%`}
                 note={`of its variance, via ${unit.pair}`} />
-              <Stat label="brightness" value={unit.brightness >= 0 ? `+${unit.brightness.toFixed(2)}` : unit.brightness.toFixed(2)}
-                note="a true ratio would sit at 0.00" />
+              <Stat label="brightness left over" value={unit.partial >= 0 ? `+${unit.partial.toFixed(2)}` : unit.partial.toFixed(2)}
+                tone={Math.abs(unit.partial) < 0.15 ? accent : undefined}
+                note={`after removing the index's own ${unit.indexBrightness >= 0 ? '+' : ''}${unit.indexBrightness.toFixed(2)}`} />
               <Stat label="rank corr." value={unit.rho >= 0 ? `+${unit.rho.toFixed(2)}` : unit.rho.toFixed(2)}
                 note={`with ${unit.index}, monotone only`} />
             </div>

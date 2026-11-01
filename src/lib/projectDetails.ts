@@ -154,7 +154,7 @@ export const projectDetails: Record<string, ProjectDetail> = {
           'Visible-band pairs are nearly exclusive to the trained model: Green-Red 62 against at most 1, Blue-Green 26 against 0',
           'There is no NDVI neuron anywhere, in any model, at any layer',
           'Honest limits: the surviving residuals sit just under the 0.05 threshold, and one candidate flipped from pass to fail when measured on more tokens',
-          'Brightness is the honest caveat. A scale-invariant ratio should correlate 0.00 with overall brightness, and most of these units do not, which is why they are labelled near-ratio rather than clean',
+          'A correction worth keeping: these units look brightness-contaminated until you measure the formulas themselves. Exact Green to Red correlates -0.82 with brightness, because green surfaces really are darker than deserts. Partial that out and the strongest unit is left with -0.000, while the unit that fails the ratio test keeps -0.52',
           'The two directions come apart in both senses. The unit best explained by NDVI anywhere, at 76 percent of its variance, fails the ratio test; the unit with the lowest ratio residual is explained by no index measured here'
         ],
         figure: 'neuron-explorer'
